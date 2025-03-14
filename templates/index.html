@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futbol App</title>
+</head>
+<body>
+    <h1>Bienvenido a la App de Fútbol</h1>
+
+    <!-- Mostrar los partidos de fútbol aquí -->
+    <div id="football-matches"></div>
+
+    <!-- Widget de fútbol, ahora con los datos dinámicos -->
+    <div id="wg-api-football-games"
+         data-host="v3.football.api-sports.io"
+         data-key="Your-Api-Key-Here"
+         data-date=""
+         data-league=""
+         data-season=""
+         data-theme=""
+         data-refresh="15"
+         data-show-toolbar="true"
+         data-show-errors="false"
+         data-show-logos="true"
+         data-modal-game="true"
+         data-modal-standings="true"
+         data-modal-show-logos="true">
+    </div>
+
+    <script type="module" src="https://widgets.api-sports.io/2.0.3/widgets.js"></script>
+
+    <script>
+        // Función para obtener los partidos desde el backend (Flask)
+        async function fetchFootballMatches() {
+            try {
+                const response = await fetch('/api/football-matches');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('football-matches').innerText = 'Error al cargar los partidos.';
+                    return;
+                }
+
+                // Aquí puedes procesar los datos y mostrarlos de la manera que desees
+                let matchesHtml = '<h2>Próximos Partidos:</h2>';
+                if (data.matches && data.matches.length > 0) {
+                    data.matches.forEach(match => {
+                        matchesHtml += `<p>${match.homeTeam.name} vs ${match.awayTeam.name} - Fecha: ${match.utcDate}</p>`;
+                    });
+                } else {
+                    matchesHtml += '<p>No hay partidos próximos.</p>';
+                }
+                document.getElementById('football-matches').innerHTML = matchesHtml;
+            } catch (error) {
+                console.error('Error al obtener los partidos:', error);
+                document.getElementById('football-matches').innerText = 'Error al cargar los partidos.';
+            }
+        }
+
+        // Cargar los partidos cuando se carga la página
+        window.onload = fetchFootballMatches;
+    </script>
+</body>
+</html>
